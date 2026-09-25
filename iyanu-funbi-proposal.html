@@ -140,6 +140,28 @@
     font-weight: 500;
   }
 
+  .engaged-mark {
+    margin-top: 56px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .engaged-heart {
+    font-size: 2.6rem;
+    line-height: 1;
+  }
+
+  .engaged-label {
+    margin-top: 14px;
+    font-family: 'Fraunces', serif;
+    font-style: italic;
+    font-weight: 500;
+    font-size: 1.3rem;
+    color: var(--sage-deep);
+    letter-spacing: 0.03em;
+  }
+
   .scroll-hint {
     position: absolute;
     bottom: 34px;
@@ -436,9 +458,9 @@
 <body>
 
   <section class="hero">
-    <div class="hero-kicker">you're here for the next chapter</div>
+    <div class="hero-kicker" id="hero-kicker">you're here for the next chapter</div>
     <h1 class="hero-names"><span>Iyanu</span><span class="amp">&amp;</span><span>Funbi</span></h1>
-    <p class="hero-sub">Nine years of friendship. Three years of love. Today, it changes for good — and you get to be here for it.</p>
+    <p class="hero-sub" id="hero-sub">Nine years of friendship. Three years of love. Today, it changes for good — and you get to be here for it.</p>
 
     <div class="countdown" id="countdown">
       <div class="countdown-unit" id="cd-days-unit"><div class="countdown-num" id="cd-days">00</div><div class="countdown-label">days</div></div>
@@ -447,7 +469,12 @@
       <div class="countdown-unit" id="cd-secs-unit"><div class="countdown-num" id="cd-secs">00</div><div class="countdown-label">seconds</div></div>
     </div>
 
-    <div class="hero-date">Saturday, <strong>September 26, 2026</strong></div>
+    <div class="engaged-mark" id="engaged-mark" style="display:none;">
+      <div class="engaged-heart">🤍</div>
+      <div class="engaged-label">Engaged</div>
+    </div>
+
+    <div class="hero-date" id="hero-date">Saturday, <strong>September 26, 2026</strong></div>
     <div class="scroll-hint"></div>
   </section>
 
@@ -513,8 +540,8 @@
   </section>
 
   <section class="closing">
-    <div class="closing-eyebrow reveal">today —</div>
-    <h2 class="closing-title reveal">Iyanu is asking Funbi to spend forever together. Thank you for being here to witness it.</h2>
+    <div class="closing-eyebrow reveal" id="closing-eyebrow">today —</div>
+    <h2 class="closing-title reveal" id="closing-title">Iyanu is asking Funbi to spend forever together. Thank you for being here to witness it.</h2>
     <div class="closing-loc reveal">Three years of dating, nine years in the making — at <strong>ROAM Trillith</strong>, Fayetteville, GA</div>
 
     <div class="details reveal">
@@ -556,8 +583,32 @@
       return now.getFullYear() === 2026 && now.getMonth() === 8 && now.getDate() === 26;
     }
 
+    // Once past 6:00 PM on Sept 26, the page switches to the "engaged" state.
+    // Add ?preview=yes to the URL to see that state early, any time before then.
+    const previewEngaged = new URLSearchParams(window.location.search).get('preview') === 'yes';
+
+    function isEngaged(now) {
+      return previewEngaged || now >= sixPmTarget;
+    }
+
+    function applyEngagedState() {
+      document.getElementById('hero-kicker').textContent = 'the next chapter begins';
+      document.getElementById('hero-sub').textContent = 'Nine years of friendship. Three years of love. She said yes.';
+      document.getElementById('countdown').style.display = 'none';
+      document.getElementById('engaged-mark').style.display = 'flex';
+      document.getElementById('hero-date').innerHTML = 'Engaged since <strong>September 26, 2026</strong>';
+      document.getElementById('closing-eyebrow').textContent = 'it happened —';
+      document.getElementById('closing-title').textContent = 'Funbi said yes. Thank you for being there when it happened.';
+    }
+
     function updateCountdown() {
       const now = new Date();
+
+      if (isEngaged(now)) {
+        applyEngagedState();
+        return;
+      }
+
       const daysUnit = document.getElementById('cd-days-unit');
       const secsUnit = document.getElementById('cd-secs-unit');
 
