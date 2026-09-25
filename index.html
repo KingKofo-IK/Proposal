@@ -145,21 +145,67 @@
     display: flex;
     flex-direction: column;
     align-items: center;
+    animation: engaged-in 0.9s ease both;
   }
 
-  .engaged-heart {
-    font-size: 2.6rem;
+  @keyframes engaged-in {
+    from { opacity: 0; transform: translateY(10px) scale(0.96); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+  }
+
+  .engaged-icons {
+    font-size: 2.4rem;
     line-height: 1;
+    display: flex;
+    gap: 14px;
+    align-items: center;
+  }
+
+  .engaged-icons span {
+    display: inline-block;
+    animation: engaged-pulse 2.6s ease-in-out infinite;
+  }
+
+  .engaged-icons span:nth-child(2) { animation-delay: 0.4s; }
+
+  @keyframes engaged-pulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.14); }
   }
 
   .engaged-label {
-    margin-top: 14px;
+    margin-top: 16px;
     font-family: 'Fraunces', serif;
     font-style: italic;
     font-weight: 500;
-    font-size: 1.3rem;
+    font-size: 1.4rem;
     color: var(--sage-deep);
     letter-spacing: 0.03em;
+  }
+
+  .engaged-sparkle {
+    margin-top: 10px;
+    font-size: 0.85rem;
+    color: var(--gold);
+    letter-spacing: 0.08em;
+  }
+
+  /* ---------- CONFETTI ---------- */
+
+  .confetti-piece {
+    position: fixed;
+    top: -20px;
+    width: 9px;
+    height: 14px;
+    opacity: 0.9;
+    pointer-events: none;
+    z-index: 999;
+    animation: confetti-fall linear forwards;
+  }
+
+  @keyframes confetti-fall {
+    0% { transform: translateY(0) rotate(0deg); opacity: 1; }
+    100% { transform: translateY(105vh) rotate(540deg); opacity: 0.85; }
   }
 
   .scroll-hint {
@@ -470,8 +516,9 @@
     </div>
 
     <div class="engaged-mark" id="engaged-mark" style="display:none;">
-      <div class="engaged-heart">🤍</div>
+      <div class="engaged-icons"><span>💍</span><span>🤍</span></div>
       <div class="engaged-label">Engaged</div>
+      <div class="engaged-sparkle">✦ September 26, 2026 ✦</div>
     </div>
 
     <div class="hero-date" id="hero-date">Saturday, <strong>September 26, 2026</strong></div>
@@ -502,6 +549,11 @@
         <div class="t-year">2023–2026</div>
         <div class="t-title">Three years, day trip by day trip</div>
         <div class="t-desc">More road trips than anyone can count — spring break still holds the top spot.</div>
+      </div>
+      <div class="t-item reveal" id="t-item-forever" style="display:none;">
+        <div class="t-year">2026 — forever</div>
+        <div class="t-title">She said yes</div>
+        <div class="t-desc">Every year before this one was leading here. Everything after is just the beginning.</div>
       </div>
     </div>
   </section>
@@ -591,6 +643,24 @@
       return previewEngaged || now >= sixPmTarget;
     }
 
+    let confettiFired = false;
+
+    function launchConfetti() {
+      const colors = ['#5c7a5e', '#a9c1a6', '#aecbdd', '#c7b57e', '#f8f5ef'];
+      const count = 70;
+      for (let i = 0; i < count; i++) {
+        const piece = document.createElement('div');
+        piece.className = 'confetti-piece';
+        piece.style.left = Math.random() * 100 + 'vw';
+        piece.style.background = colors[Math.floor(Math.random() * colors.length)];
+        piece.style.animationDuration = (2.6 + Math.random() * 1.8) + 's';
+        piece.style.animationDelay = (Math.random() * 0.6) + 's';
+        piece.style.borderRadius = Math.random() > 0.5 ? '50%' : '2px';
+        document.body.appendChild(piece);
+        setTimeout(() => piece.remove(), 5200);
+      }
+    }
+
     function applyEngagedState() {
       document.getElementById('hero-kicker').textContent = 'the next chapter begins';
       document.getElementById('hero-sub').textContent = 'Nine years of friendship. Three years of love. She said yes.';
@@ -599,6 +669,17 @@
       document.getElementById('hero-date').innerHTML = 'Engaged since <strong>September 26, 2026</strong>';
       document.getElementById('closing-eyebrow').textContent = 'it happened —';
       document.getElementById('closing-title').textContent = 'Funbi said yes. Thank you for being there when it happened.';
+
+      const foreverItem = document.getElementById('t-item-forever');
+      if (foreverItem.style.display === 'none') {
+        foreverItem.style.display = '';
+        foreverItem.classList.add('in');
+      }
+
+      if (!confettiFired) {
+        confettiFired = true;
+        launchConfetti();
+      }
     }
 
     function updateCountdown() {
